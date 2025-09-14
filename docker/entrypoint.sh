@@ -5,15 +5,19 @@ set -e
 if [ ! -z "$DB_HOST" ]; then
     echo "Esperando a que la base de datos esté lista..."
     # Usar php para verificar la conexión en lugar de nc
-    until php -r "
-        try {
-            \$pdo = new PDO('mysql:host=' . getenv('DB_HOST') . ';port=' . getenv('DB_PORT'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'));
-            echo 'Base de datos lista!' . PHP_EOL;
-            exit(0);
-        } catch (Exception \$e) {
-            exit(1);
-        }
-    "; do
+    for i in {1..30}; do
+        if php -r "
+            try {
+                \$pdo = new PDO('mysql:host=' . getenv('DB_HOST') . ';port=' . getenv('DB_PORT'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'));
+                echo 'Base de datos lista!' . PHP_EOL;
+                exit(0);
+            } catch (Exception \$e) {
+                exit(1);
+            }
+        "; then
+            break
+        fi
+        echo "Intento $i/30 - Esperando base de datos..."
         sleep 2
     done
 fi
@@ -30,8 +34,31 @@ if [ ! -f .env ]; then
     fi
 fi
 
-# Generar clave de aplicación
-php artisan key:generate --force
+# Verificar si APP_KEY está configurado
+if [ -z "$APP_KEY" ]; then
+    echo "APP_KEY no está configurado, generando nueva clave..."
+    php artisan key:generate --force
+else
+    echo "Usando APP_KEY de variables de entorno..."
+    # Actualizar el archivo .env con la clave de la variable de entorno
+    sed -i "s/APP_KEY=.*/APP_KEY=$APP_KEY/" .env
+fi
+
+# Actualizar variables de entorno de la base de datos si están disponibles
+if [ ! -z "$MYSQL_HOST" ]; then
+    echo "Configurando variables de base de datos de Railway..."
+    sed -i "s/DB_HOST=.*/DB_HOST=$MYSQL_HOST/" .env
+    sed -i "s/DB_PORT=.*/DB_PORT=${MYSQL_PORT:-3306}/" .env
+    sed -i "s/DB_DATABASE=.*/DB_DATABASE=$MYSQL_DATABASE/" .env
+    sed -i "s/DB_USERNAME=.*/DB_USERNAME=$MYSQL_USER/" .env
+    sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=$MYSQL_PASSWORD/" .env
+fi
+
+# Actualizar APP_URL si está disponible
+if [ ! -z "$RAILWAY_PUBLIC_DOMAIN" ]; then
+    echo "Configurando APP_URL de Railway..."
+    sed -i "s|APP_URL=.*|APP_URL=https://$RAILWAY_PUBLIC_DOMAIN|" .env
+fi
 
 # Ejecutar migraciones
 php artisan migrate --force
