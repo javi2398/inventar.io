@@ -2,7 +2,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile.simple
     container_name: inventar-app
     restart: unless-stopped
     working_dir: /var/www/html
