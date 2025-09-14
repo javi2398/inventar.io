@@ -2,13 +2,17 @@
 set -e
 
 # Esperar a que la base de datos esté lista (si es necesario)
-if [ ! -z "$DB_HOST" ]; then
+if [ ! -z "$MYSQLHOST" ] || [ ! -z "$MYSQL_HOST" ]; then
     echo "Esperando a que la base de datos esté lista..."
     # Usar php para verificar la conexión en lugar de nc
     for i in {1..30}; do
         if php -r "
             try {
-                \$pdo = new PDO('mysql:host=' . getenv('DB_HOST') . ';port=' . getenv('DB_PORT'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'));
+                \$host = getenv('MYSQLHOST') ?: getenv('MYSQL_HOST');
+                \$port = getenv('MYSQLPORT') ?: getenv('MYSQL_PORT') ?: '3306';
+                \$user = getenv('MYSQLUSER') ?: getenv('MYSQL_USER');
+                \$pass = getenv('MYSQLPASSWORD') ?: getenv('MYSQL_PASSWORD');
+                \$pdo = new PDO('mysql:host=' . \$host . ';port=' . \$port, \$user, \$pass);
                 echo 'Base de datos lista!' . PHP_EOL;
                 exit(0);
             } catch (Exception \$e) {
@@ -45,8 +49,15 @@ else
 fi
 
 # Actualizar variables de entorno de la base de datos si están disponibles
-if [ ! -z "$MYSQL_HOST" ]; then
+if [ ! -z "$MYSQLHOST" ]; then
     echo "Configurando variables de base de datos de Railway..."
+    sed -i "s/DB_HOST=.*/DB_HOST=$MYSQLHOST/" .env
+    sed -i "s/DB_PORT=.*/DB_PORT=${MYSQLPORT:-3306}/" .env
+    sed -i "s/DB_DATABASE=.*/DB_DATABASE=$MYSQLDATABASE/" .env
+    sed -i "s/DB_USERNAME=.*/DB_USERNAME=$MYSQLUSER/" .env
+    sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=$MYSQLPASSWORD/" .env
+elif [ ! -z "$MYSQL_HOST" ]; then
+    echo "Configurando variables de base de datos de Railway (formato alternativo)..."
     sed -i "s/DB_HOST=.*/DB_HOST=$MYSQL_HOST/" .env
     sed -i "s/DB_PORT=.*/DB_PORT=${MYSQL_PORT:-3306}/" .env
     sed -i "s/DB_DATABASE=.*/DB_DATABASE=$MYSQL_DATABASE/" .env
