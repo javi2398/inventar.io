@@ -40,6 +40,7 @@ export default function Login({ status, canResetPassword }) {
                         id="email"
                         type="email"
                         name="email"
+                        placeholder='user@gmail.com | Demo Email'
                         value={data.email}
                         className="mt-1 block w-full"
                         autoComplete="username"
@@ -57,6 +58,7 @@ export default function Login({ status, canResetPassword }) {
                         id="password"
                         type="password"
                         name="password"
+                        placeholder='password | Demo Password'
                         value={data.password}
                         className="mt-1 block w-full"
                         autoComplete="current-password"

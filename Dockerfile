@@ -40,8 +40,8 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --no-script
 # Copiar package.json y package-lock.json
 COPY package*.json ./
 
-# Instalar dependencias de Node.js
-RUN npm ci --only=production
+# Instalar dependencias de Node.js (incluyendo devDependencies para el build)
+RUN npm install
 
 # Copiar el resto del código de la aplicación
 COPY . .
@@ -49,6 +49,9 @@ COPY . .
 # Ejecutar scripts de Composer y construir assets
 RUN composer run-script post-autoload-dump \
     && npm run build
+
+# Limpiar dependencias de desarrollo de Node.js para reducir tamaño
+RUN npm prune --production
 
 # Configurar permisos
 RUN chown -R www-data:www-data /var/www/html \

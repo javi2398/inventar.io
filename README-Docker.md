@@ -57,7 +57,11 @@ Configura las siguientes variables de entorno en Railway:
 
 #### Variables Obligatorias:
 - `APP_KEY` - Genera con: `php artisan key:generate --show`
-- `APP_URL` - URL de tu aplicación en Railway
+- `APP_URL` - URL de tu aplicación en Railway (ej: https://tu-app.railway.app)
+- `APP_ENV=production`
+- `APP_DEBUG=false`
+
+#### Variables de Base de Datos (Railway las proporciona automáticamente):
 - `DB_CONNECTION=mysql`
 - `DB_HOST` - Railway lo proporcionará automáticamente
 - `DB_PORT=3306`
@@ -76,15 +80,20 @@ Configura las siguientes variables de entorno en Railway:
 
 ### 4. Base de Datos
 
-Railway puede proporcionar una base de datos MySQL automáticamente. Asegúrate de:
-
-1. Añadir un servicio MySQL en Railway
+1. En Railway, añade un servicio MySQL
 2. Las variables de entorno de la base de datos se configurarán automáticamente
 3. Las migraciones se ejecutarán automáticamente durante el despliegue
 
 ### 5. Despliegue
 
 Una vez configurado, Railway desplegará automáticamente tu aplicación cada vez que hagas push a la rama principal.
+
+### 6. Verificar el Despliegue
+
+Después del despliegue:
+1. Verifica que la aplicación esté funcionando en la URL proporcionada
+2. Revisa los logs en Railway para asegurar que no hay errores
+3. Verifica que las migraciones se ejecutaron correctamente
 
 ## Comandos Útiles
 

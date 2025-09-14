@@ -36,10 +36,12 @@ php artisan key:generate --force
 # Ejecutar migraciones
 php artisan migrate --force
 
-# Limpiar y optimizar cache
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+# Limpiar y optimizar cache (solo en producción)
+if [ "$APP_ENV" = "production" ]; then
+    php artisan config:cache
+    php artisan route:cache
+    php artisan view:cache
+fi
 
 # Iniciar Apache
 exec apache2-foreground
