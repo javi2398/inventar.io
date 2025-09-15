@@ -1,11 +1,21 @@
 #!/bin/bash
 set -e
 
-# ---- 0) Limpiar cachés por si vienen precacheadas en build ----
-php artisan config:clear || true
-php artisan cache:clear || true
+# Ir al root del proyecto (por si cambia la WORKDIR)
+cd /var/www/html || true
 
-# ---- 1) Descubrir credenciales de DB desde DB_* (fallback a MYSQL_*) ----
+# ---- 0) Limpiar cachés (controlable por var de entorno) ----
+if [ "${CLEAR_CACHE_ON_BOOT:-true}" = "true" ]; then
+  php artisan config:clear || true
+  php artisan cache:clear || true
+fi
+
+# Si falta artisan, no intentes correr comandos que lo requieren
+if [ ! -f artisan ]; then
+  echo "WARN: no se encuentra 'artisan'. ¿Se copió el código al contenedor?"
+fi
+
+# ---- 1) Credenciales de DB desde DB_* (fallback a MYSQL_*) ----
 DBH="${DB_HOST:-${MYSQLHOST:-${MYSQL_HOST}}}"
 DBP="${DB_PORT:-${MYSQLPORT:-${MYSQL_PORT:-3306}}}"
 DBU="${DB_USERNAME:-${MYSQLUSER:-${MYSQL_USER}}}"
@@ -27,15 +37,20 @@ fi
 # ---- 3) APP_KEY ----
 if [ -z "$APP_KEY" ]; then
   echo "APP_KEY no está configurado; generando..."
-  php artisan key:generate --force
+  php artisan key:generate --force || true
 else
   echo "Usando APP_KEY de variables de entorno..."
 fi
 
-# ---- 4) Migraciones (en background para no bloquear el healthcheck) ----
-php artisan migrate --force || true &
+# ---- 4) Migraciones y (opcional) seeders ----
+if [ "${RUN_SEEDERS:-false}" = "true" ]; then
+  # Migra y seed en background para no bloquear el healthcheck
+  (php artisan migrate --seed --force) || true &
+else
+  (php artisan migrate --force) || true &
+fi
 
-# Opcional pero útil
+# ---- 4.1) Enlace de storage (idempotente) ----
 php artisan storage:link || true
 
 # ---- 5) Calentar cachés (que no rompa si falta algo) ----
