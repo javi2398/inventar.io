@@ -103,7 +103,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/proveedor/email', [SendEmaillController::class, 'sendEmail'])->name('proveedor.email');
 });
 
-//TEST EMAIL
+//RAILWAY
+Route::get('/healthz', fn () => response('ok', 200));
+
 
 
 require __DIR__ . '/auth.php';

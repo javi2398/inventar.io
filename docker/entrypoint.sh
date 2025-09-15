@@ -1,85 +1,49 @@
 #!/bin/bash
 set -e
 
-# Esperar a que la base de datos esté lista (si es necesario)
-if [ ! -z "$MYSQLHOST" ] || [ ! -z "$MYSQL_HOST" ]; then
-    echo "Esperando a que la base de datos esté lista..."
-    # Usar php para verificar la conexión en lugar de nc
-    for i in {1..30}; do
-        if php -r "
-            try {
-                \$host = getenv('MYSQLHOST') ?: getenv('MYSQL_HOST');
-                \$port = getenv('MYSQLPORT') ?: getenv('MYSQL_PORT') ?: '3306';
-                \$user = getenv('MYSQLUSER') ?: getenv('MYSQL_USER');
-                \$pass = getenv('MYSQLPASSWORD') ?: getenv('MYSQL_PASSWORD');
-                \$pdo = new PDO('mysql:host=' . \$host . ';port=' . \$port, \$user, \$pass);
-                echo 'Base de datos lista!' . PHP_EOL;
-                exit(0);
-            } catch (Exception \$e) {
-                exit(1);
-            }
-        "; then
-            break
-        fi
-        echo "Intento $i/30 - Esperando base de datos..."
-        sleep 2
-    done
-fi
+# Limpiar caches por si vienen precacheadas
+php artisan config:clear || true
+php artisan cache:clear || true
 
-# Generar clave de aplicación si no existe
-if [ ! -f .env ]; then
-    echo "Creando archivo .env..."
-    if [ -f .env.example ]; then
-        cp .env.example .env
-    elif [ -f env.example ]; then
-        cp env.example .env
-    else
-        echo "No se encontró archivo de ejemplo de .env"
+# Descubrir credenciales desde DB_* (fallback MYSQL_*)
+DBH="${DB_HOST:-${MYSQLHOST:-${MYSQL_HOST}}}"
+DBP="${DB_PORT:-${MYSQLPORT:-${MYSQL_PORT:-3306}}}"
+DBU="${DB_USERNAME:-${MYSQLUSER:-${MYSQL_USER}}}"
+DBW="${DB_PASSWORD:-${MYSQLPASSWORD:-${MYSQL_PASSWORD}}}"
+
+# Esperar DB si hay host/usuario
+if [ -n "$DBH" ] && [ -n "$DBU" ]; then
+  echo "Esperando a que la base de datos esté lista en ${DBH}:${DBP} ..."
+  for i in $(seq 1 60); do
+    if php -r "try{new PDO('mysql:host=${DBH};port=${DBP}','${DBU}','${DBW}'); exit(0);}catch(Exception \$e){exit(1);}"; then
+      echo "Base de datos lista!"
+      break
     fi
+    echo "Intento $i/60 - Esperando base de datos..."
+    sleep 2
+  done
 fi
 
-# Verificar si APP_KEY está configurado
+# APP_KEY
 if [ -z "$APP_KEY" ]; then
-    echo "APP_KEY no está configurado, generando nueva clave..."
-    php artisan key:generate --force
+  echo "APP_KEY no está configurado; generando..."
+  php artisan key:generate --force
 else
-    echo "Usando APP_KEY de variables de entorno..."
-    # Actualizar el archivo .env con la clave de la variable de entorno
-    sed -i "s/APP_KEY=.*/APP_KEY=$APP_KEY/" .env
+  echo "Usando APP_KEY de variables de entorno..."
 fi
 
-# Actualizar variables de entorno de la base de datos si están disponibles
-if [ ! -z "$MYSQLHOST" ]; then
-    echo "Configurando variables de base de datos de Railway..."
-    sed -i "s/DB_HOST=.*/DB_HOST=$MYSQLHOST/" .env
-    sed -i "s/DB_PORT=.*/DB_PORT=${MYSQLPORT:-3306}/" .env
-    sed -i "s/DB_DATABASE=.*/DB_DATABASE=$MYSQLDATABASE/" .env
-    sed -i "s/DB_USERNAME=.*/DB_USERNAME=$MYSQLUSER/" .env
-    sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=$MYSQLPASSWORD/" .env
-elif [ ! -z "$MYSQL_HOST" ]; then
-    echo "Configurando variables de base de datos de Railway (formato alternativo)..."
-    sed -i "s/DB_HOST=.*/DB_HOST=$MYSQL_HOST/" .env
-    sed -i "s/DB_PORT=.*/DB_PORT=${MYSQL_PORT:-3306}/" .env
-    sed -i "s/DB_DATABASE=.*/DB_DATABASE=$MYSQL_DATABASE/" .env
-    sed -i "s/DB_USERNAME=.*/DB_USERNAME=$MYSQL_USER/" .env
-    sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=$MYSQL_PASSWORD/" .env
+# Migraciones (no bloquees el healthcheck si tarda)
+php artisan migrate --force || true &
+
+# Calentar caches (que no rompa si algo falta)
+php artisan view:cache || true
+php artisan route:cache || true
+php artisan config:cache || true
+
+# Apache debe escuchar en $PORT para pasar el healthcheck de Railway
+if [ -n "$PORT" ]; then
+  sed -ri "s/Listen 80/Listen ${PORT}/" /etc/apache2/ports.conf
+  sed -ri "s/\*:80/*:${PORT}/" /etc/apache2/sites-available/000-default.conf
 fi
 
-# Actualizar APP_URL si está disponible
-if [ ! -z "$RAILWAY_PUBLIC_DOMAIN" ]; then
-    echo "Configurando APP_URL de Railway..."
-    sed -i "s|APP_URL=.*|APP_URL=https://$RAILWAY_PUBLIC_DOMAIN|" .env
-fi
-
-# Ejecutar migraciones
-php artisan migrate --force
-
-# Limpiar y optimizar cache (solo en producción)
-if [ "$APP_ENV" = "production" ]; then
-    php artisan config:cache
-    php artisan route:cache
-    php artisan view:cache
-fi
-
-# Iniciar Apache
 exec apache2-foreground
