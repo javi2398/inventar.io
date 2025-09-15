@@ -1,68 +1,59 @@
-# Usar la imagen oficial de PHP con Apache
+# Imagen base PHP + Apache
 FROM php:8.2-apache
 
-# Instalar dependencias del sistema
+# ---- Sistema y extensiones PHP necesarias ----
 RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    libpng-dev \
+    git curl zip unzip \
+    libzip-dev \
     libonig-dev \
     libxml2-dev \
-    libzip-dev \
-    zip \
-    unzip \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    libpng-dev libjpeg62-turbo-dev libfreetype6-dev \
+ && docker-php-ext-configure gd --with-freetype --with-jpeg \
+ && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip \
+ && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Instalar Node.js desde NodeSource
+# ---- Node.js 18 (para build de Vite) ----
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y nodejs
+ && apt-get install -y nodejs
 
-# Habilitar mod_rewrite para Apache
+# ---- Apache: mod_rewrite ----
 RUN a2enmod rewrite
 
-# Configurar el directorio de trabajo
+# ---- Directorio de trabajo ----
 WORKDIR /var/www/html
 
-# Copiar archivos de configuración de Apache
+# ---- Config de Apache ----
 COPY docker/apache/000-default.conf /etc/apache2/sites-available/000-default.conf
 
-# Instalar Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# ---- Composer (desde imagen oficial) ----
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copiar composer.json y composer.lock primero para cache de dependencias
+# ---- Dependencias PHP con caché de capas ----
 COPY composer.json composer.lock ./
+RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
 
-# Instalar dependencias de PHP (sin scripts por ahora)
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
-
-# Copiar package.json y package-lock.json
+# ---- Dependencias Node con caché de capas ----
 COPY package*.json ./
+RUN npm ci
 
-# Instalar dependencias de Node.js (incluyendo devDependencies para el build)
-RUN npm install
-
-# Copiar el resto del código de la aplicación
+# ---- Copiar el resto del código ----
 COPY . .
 
-# Ejecutar scripts de Composer y construir assets
-RUN composer run-script post-autoload-dump \
-    && npm run build
+# ---- Build de assets y optimización ----
+RUN npm run build \
+ && npm prune --production \
+ && composer dump-autoload -o
 
-# Limpiar dependencias de desarrollo de Node.js para reducir tamaño
-RUN npm prune --production
-
-# Configurar permisos
+# ---- Permisos (Laravel) ----
 RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html/storage \
-    && chmod -R 755 /var/www/html/bootstrap/cache
+ && chgrp -R www-data storage bootstrap/cache \
+ && chmod -R ug+rwx storage bootstrap/cache
 
-# Script de inicio
+# ---- Entrypoint ----
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# Exponer el puerto 80
+# Exponer 80 (Apache). Railway reescribirá al $PORT en runtime.
 EXPOSE 80
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
