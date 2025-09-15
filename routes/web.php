@@ -2,14 +2,17 @@
 
 use Inertia\Inertia;
 use App\Models\Proveedor;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Web\CategoriasController;
 use App\Http\Controllers\Web\AlmacenController;
 use App\Http\Controllers\Web\ClienteController;
 use App\Http\Controllers\Web\ProfileController;
 use App\Http\Controllers\Web\ProductoController;
 use App\Http\Controllers\Web\EntidadesController;
+use App\Http\Controllers\Web\CategoriasController;
 use App\Http\Controllers\Web\InventarioController;
 use App\Http\Controllers\Web\SendEmaillController;
 use App\Http\Controllers\Web\ProveedoresController;
@@ -106,6 +109,29 @@ Route::middleware('auth')->group(function () {
 //RAILWAY
 Route::get('/healthz', fn () => response('ok', 200));
 
+Route::get('/__ops/db-ping', function (Request $r) {
+    abort_unless($r->query('token') === env('OPS_TOKEN'), 403);
+    $row = DB::selectOne('select database() db, @@hostname host, version() ver');
+    return response()->json($row);
+});
+
+Route::get('/__ops/migrate', function (Request $r) {
+    abort_unless($r->query('token') === env('OPS_TOKEN'), 403);
+    Artisan::call('migrate', ['--force' => true, '-v' => 1]);
+    return response("<pre>".e(Artisan::output())."</pre>", 200)->header('Content-Type', 'text/html');
+});
+
+Route::get('/__ops/seed', function (Request $r) {
+    abort_unless($r->query('token') === env('OPS_TOKEN'), 403);
+    Artisan::call('db:seed', ['--force' => true, '-v' => 1]);
+    return response("<pre>".e(Artisan::output())."</pre>", 200)->header('Content-Type', 'text/html');
+});
+
+Route::get('/__ops/tables', function (Request $r) {
+    abort_unless($r->query('token') === env('OPS_TOKEN'), 403);
+    $tables = DB::select('SHOW TABLES');
+    return response()->json($tables);
+});
 
 
 require __DIR__ . '/auth.php';
