@@ -27,10 +27,11 @@ COPY docker/apache/000-default.conf /etc/apache2/sites-available/000-default.con
 
 # ---- Composer (desde imagen oficial) ----
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+ENV COMPOSER_ALLOW_SUPERUSER=1
 
-# ---- Dependencias PHP con caché de capas ----
+# ---- Dependencias PHP con caché de capas (SIN scripts) ----
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
+RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader --no-scripts
 
 # ---- Dependencias Node con caché de capas ----
 COPY package*.json ./
@@ -39,8 +40,10 @@ RUN npm ci
 # ---- Copiar el resto del código ----
 COPY . .
 
-# ---- Build de assets y optimización ----
-RUN npm run build \
+# ---- Ahora que ya existe artisan, ejecuta lo que depende de él ----
+RUN composer dump-autoload -o \
+ && php artisan package:discover --ansi || true \
+ && npm run build \
  && npm prune --production \
  && composer dump-autoload -o
 
@@ -53,7 +56,5 @@ RUN chown -R www-data:www-data /var/www/html \
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# Exponer 80 (Apache). Railway reescribirá al $PORT en runtime.
 EXPOSE 80
-
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
