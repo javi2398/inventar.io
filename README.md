@@ -31,12 +31,15 @@ Permite registrar compras, ventas, stock y gastos de forma sencilla, centralizan
 ---
 
 ## Instalación del proyecto
-- Backend (Laravel)
+
+### Backend (Laravel)
+
 composer install
 cp .env.example .env
 php artisan key:generate
 
-Edita el archivo .env con tus credenciales de MySQL
+### Edita el archivo .env con tus credenciales de MySQL
+
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
@@ -44,11 +47,12 @@ DB_DATABASE=inventario
 DB_USERNAME=root
 DB_PASSWORD=
 
-Ejecuta migraciones y seeders:
+### Ejecuta migraciones y seeders
+
 php artisan migrate --seed
 php artisan serve
 
-- Frontend (React)
+### Frontend (React)
+
 npm install
 npm run dev
-
