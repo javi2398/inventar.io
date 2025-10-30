@@ -32,6 +32,28 @@ Permite registrar compras, ventas, stock y gastos de forma sencilla, centralizan
 
 ## Instalación del proyecto
 
+## Desarrollo Local
+
+Para ejecutar el proyecto localmente con Docker:  
+
+# Construir y ejecutar los contenedores  
+docker-compose up -d  
+
+# Ver logs  
+docker-compose logs -f  
+
+# Ejecutar comandos de Laravel  
+docker-compose exec app php artisan migrate  
+docker-compose exec app php artisan db:seed  
+
+# Parar los contenedores  
+docker-compose down  
+
+
+El proyecto estará disponible en:
+- Aplicación: http://localhost:8000
+- phpMyAdmin: http://localhost:8080
+
 ### Backend (Laravel)
 
 composer install  

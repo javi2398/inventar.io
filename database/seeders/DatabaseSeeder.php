@@ -22,17 +22,17 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             UserSeeder::class,
-            // CategoriaSeeder::class,
-            // CompradorSeeder::class,
-            // ProductoSeeder::class,
-            // ProveedorSeeder::class,
-            // AlmacenSeeder::class,
-            // GastoSeeder::class,
-            // CompraSeeder::class,
-            // VentaSeeder::class,
-            // DetalleCompraSeeder::class,
-            // DetalleVentaSeeder::class,
-            // InventarioSeeder::class,
+            CategoriaSeeder::class,
+            CompradorSeeder::class,
+            ProductoSeeder::class,
+            ProveedorSeeder::class,
+            AlmacenSeeder::class,
+            GastoSeeder::class,
+            CompraSeeder::class,
+            VentaSeeder::class,
+            DetalleCompraSeeder::class,
+            DetalleVentaSeeder::class,
+            InventarioSeeder::class,
         ]);
     }
 }
