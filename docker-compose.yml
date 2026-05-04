@@ -17,8 +17,8 @@ services:
       - DB_CONNECTION=pgsql
       - DB_HOST=postgres
       - DB_PORT=5432
-      - DB_DATABASE=inventar
-      - DB_USERNAME=inventar
+      - DB_DATABASE=inventario
+      - DB_USERNAME=postgres
       - DB_PASSWORD=password
     depends_on:
       - postgres
@@ -30,8 +30,8 @@ services:
     container_name: inventar-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: inventar
-      POSTGRES_USER: inventar
+      POSTGRES_DB: inventario
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     volumes:
       - postgres_data:/var/lib/postgresql/data
