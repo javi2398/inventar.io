@@ -15,17 +15,17 @@ if [ ! -f artisan ]; then
   echo "WARN: no se encuentra 'artisan'. ¿Se copió el código al contenedor?"
 fi
 
-# ---- 1) Credenciales de DB desde DB_* (fallback a MYSQL_*) ----
-DBH="${DB_HOST:-${MYSQLHOST:-${MYSQL_HOST}}}"
-DBP="${DB_PORT:-${MYSQLPORT:-${MYSQL_PORT:-3306}}}"
-DBU="${DB_USERNAME:-${MYSQLUSER:-${MYSQL_USER}}}"
-DBW="${DB_PASSWORD:-${MYSQLPASSWORD:-${MYSQL_PASSWORD}}}"
+# ---- 1) Credenciales de DB desde DB_* (fallback a PG*) ----
+DBH="${DB_HOST:-${PGHOST:-${POSTGRES_HOST}}}"
+DBP="${DB_PORT:-${PGPORT:-${POSTGRES_PORT:-5432}}}"
+DBU="${DB_USERNAME:-${PGUSER:-${POSTGRES_USER}}}"
+DBW="${DB_PASSWORD:-${PGPASSWORD:-${POSTGRES_PASSWORD}}}"
 
 # ---- 2) Esperar DB si hay host/usuario (sin bloquear indefinidamente) ----
 if [ -n "$DBH" ] && [ -n "$DBU" ]; then
   echo "Esperando a que la base de datos esté lista en ${DBH}:${DBP} ..."
   for i in $(seq 1 60); do
-    if php -r "try{new PDO('mysql:host=${DBH};port=${DBP}','${DBU}','${DBW}'); exit(0);}catch(Exception \$e){exit(1);}"; then
+    if php -r "try{new PDO('pgsql:host=${DBH};port=${DBP}','${DBU}','${DBW}'); exit(0);}catch(Exception \$e){exit(1);}"; then
       echo "Base de datos lista!"
       break
     fi

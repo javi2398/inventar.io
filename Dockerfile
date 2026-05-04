@@ -7,9 +7,10 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     libonig-dev \
     libxml2-dev \
+    libpq-dev \
     libpng-dev libjpeg62-turbo-dev libfreetype6-dev \
  && docker-php-ext-configure gd --with-freetype --with-jpeg \
- && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip \
+ && docker-php-ext-install pdo_pgsql mbstring exif pcntl bcmath gd zip \
  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # ---- Node.js 18 (para build de Vite) ----
