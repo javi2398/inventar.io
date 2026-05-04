@@ -168,7 +168,7 @@ class InventarioController extends Controller
             $gastosMensuales = Gasto::where('id_user', $userId)
                 ->where('fecha', '>=', $fechaCincoMesesAntes)
                 ->select(
-                    DB::raw('DATE_FORMAT(fecha, "%Y-%m") as mes'),
+                    DB::raw("TO_CHAR(fecha, 'YYYY-MM') as mes"),
                     DB::raw('SUM(precio) as total_gastos')
                 )
                 ->groupBy('mes')

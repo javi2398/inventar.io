@@ -30,7 +30,7 @@ class ProductoController extends Controller
 
         // Ventas del producto por semana (último mes)
         $ventasPorSemana = DetalleVenta::select(
-                DB::raw('WEEK(ventas.fecha_venta) as semana'),
+                DB::raw('EXTRACT(WEEK FROM ventas.fecha_venta)::integer as semana'),
                 DB::raw('SUM(detalle_ventas.cantidad * detalle_ventas.precio_unitario) as total')
             )
             ->join('ventas', 'detalle_ventas.id_venta', '=', 'ventas.id')
@@ -60,7 +60,7 @@ class ProductoController extends Controller
 
         // Tendencia del stock por mes (últimos 5 meses)
         $stockTendencia = Inventario::select(
-                DB::raw('DATE_FORMAT(fecha_entrada, "%b") as mes'),
+                DB::raw("TO_CHAR(fecha_entrada, 'Mon') as mes"),
                 DB::raw('SUM(cantidad_actual) as total_stock')
             )
             ->where('id_producto', $productoId)

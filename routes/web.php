@@ -111,7 +111,7 @@ Route::get('/healthz', fn () => response('ok', 200));
 
 Route::get('/__ops/db-ping', function (Request $r) {
     abort_unless($r->query('token') === env('OPS_TOKEN'), 403);
-    $row = DB::selectOne('select database() db, @@hostname host, version() ver');
+    $row = DB::selectOne('select current_database() db, inet_server_addr() host, version() ver');
     return response()->json($row);
 });
 
@@ -129,7 +129,7 @@ Route::get('/__ops/seed', function (Request $r) {
 
 Route::get('/__ops/tables', function (Request $r) {
     abort_unless($r->query('token') === env('OPS_TOKEN'), 403);
-    $tables = DB::select('SHOW TABLES');
+    $tables = DB::select("SELECT tablename FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename");
     return response()->json($tables);
 });
 
