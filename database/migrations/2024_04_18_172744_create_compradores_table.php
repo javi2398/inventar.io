@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('identificacion');
             $table->string('telefono'); 
             $table->string('direccion');
-            $table->enum ('tipo_comprador', ['particular', 'empresa']);
+            $table->string('tipo_comprador');
             $table->timestamps();
         });
     }
