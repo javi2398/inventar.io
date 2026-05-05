@@ -54,12 +54,11 @@ class AlmacenController extends Controller
         $almacen = $this->findUserAlmacen($data['id']);
 
         $tieneCompras = DetalleCompra::where('id_almacen', $almacen->id)->exists();
-        $tieneVentas = DetalleVenta::where('id_almacen', $almacen->id)->exists();
 
-        if ($tieneCompras || $tieneVentas) {
+        if ($tieneCompras) {
             return redirect()->back()->with([
                 'status' => false,
-                'message' => 'No se puede eliminar el almacén porque tiene registros de compras o ventas asociados.'
+                'message' => 'No se puede eliminar el almacén porque tiene registros de compras asociados.'
             ]);
         }
 
@@ -79,12 +78,11 @@ class AlmacenController extends Controller
         $almacen = $this->findUserAlmacen($data['id']);
 
         $tieneCompras = DetalleCompra::where('id_almacen', $almacen->id)->exists();
-        $tieneVentas = DetalleVenta::where('id_almacen', $almacen->id)->exists();
 
-        if ($tieneCompras || $tieneVentas) {
+        if ($tieneCompras) {
             return redirect()->back()->with([
                 'status' => false,
-                'message' => 'No se puede eliminar el almacén porque tiene registros de compras o ventas asociados.'
+                'message' => 'No se puede eliminar el almacén porque tiene registros de compras asociados.'
             ]);
         }
 
