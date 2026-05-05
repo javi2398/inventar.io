@@ -33,7 +33,7 @@ class DetalleCompra extends Model
     }
 
     public function getSubtotalAttribute()
-    {   
-    return $this->cantidad * $this->precio_unitario;
+    {
+        return $this->cantidad_actual * $this->precio_unitario;
     }
 }
