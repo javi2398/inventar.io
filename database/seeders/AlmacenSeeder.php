@@ -13,10 +13,10 @@ class AlmacenSeeder extends Seeder
      */
     public function run(): void
     {
-        $user = User::first();
+        $user = User::where('email', 'user@gmail.com')->first();
 
         if (!$user) {
-            $this->command->warn('No se encontró ningún usuario en la base de datos.');
+            $this->command->warn('No se encontró el usuario demo user@gmail.com. Ejecuta primero el UserSeeder.');
             return;
         }
 
