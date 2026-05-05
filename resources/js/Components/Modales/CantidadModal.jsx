@@ -233,7 +233,7 @@ export default function CantidadModal({
                                     <div className="text-sm text-gray-600 mt-1">
                                         Total estimado:{" "}
                                         <span className="font-semibold text-gray-800">
-                                            ${totalEstimado}
+                                            {totalEstimado}€
                                         </span>
                                     </div>
                                 )}
