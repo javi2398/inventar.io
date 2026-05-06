@@ -236,6 +236,7 @@ class ProductoController extends Controller
                 'codigo' => $data['codigo'],
                 'nombre'=> $data['nombre'],
                 'descripcion'=> $data['descripcion'],
+                'perecedero' => $data['perecedero'] ?? false,
                 'imagen'=> $data['imagen']
             ]);
         }
