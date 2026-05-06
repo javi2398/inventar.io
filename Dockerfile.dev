@@ -1,5 +1,5 @@
 # Dockerfile optimizado para desarrollo local
-FROM php:8.2-apache
+FROM php:8.4-apache
 
 # Instalar dependencias básicas
 RUN apt-get update && apt-get install -y \
