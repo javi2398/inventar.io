@@ -1,5 +1,7 @@
 # 🧾 Inventar.io
 
+[![Tests](https://github.com/javi2398/inventar.io/actions/workflows/tests.yml/badge.svg)](https://github.com/javi2398/inventar.io/actions/workflows/tests.yml)
+
 **Inventar.io** es una aplicación web de **gestión de inventario** orientada a **autónomos, mayoristas y pequeños negocios**.  
 Permite registrar compras, ventas, stock y gastos de forma sencilla, centralizando toda la información comercial en una sola plataforma accesible desde cualquier dispositivo.
 
@@ -87,3 +89,26 @@ php artisan serve
 
 npm install  
 npm run dev  
+
+---
+
+## 🧪 Tests
+
+La suite de tests usa la base de datos `inventario_testing` del mismo contenedor de Postgres definido en `docker-compose.yml` (se crea automáticamente la primera vez que se inicializa el volumen, vía `docker/postgres-init/init.sql`).
+
+### Ejecutar los tests en local
+
+```bash
+# 1. Levantar Postgres si no está arriba
+docker compose up -d postgres
+
+# 2. Ejecutar la suite completa
+./vendor/bin/phpunit
+
+# 3. Filtrar por nombre de test
+./vendor/bin/phpunit --filter ProductoController
+```
+
+### CI
+
+Cada `push` a `main` y cada Pull Request dispara el workflow [`tests.yml`](.github/workflows/tests.yml), que levanta un servicio de Postgres 16 y ejecuta toda la suite. El estado se refleja en el badge superior.
