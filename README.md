@@ -84,7 +84,7 @@ Permite registrar compras, ventas, stock y gastos de forma sencilla, centralizan
 
 ## 🎮 Demo
 
-> Cuando esté desplegado en Laravel Cloud, aquí irá la URL pública.
+🌐 **Aplicación desplegada**: [inventario.free.laravel.cloud](https://inventario.free.laravel.cloud)
 
 **Credenciales de prueba** (tras ejecutar los seeders):
 
