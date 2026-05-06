@@ -19,6 +19,30 @@ Permite registrar compras, ventas, stock y gastos de forma sencilla, centralizan
 
 ---
 
+## 🖼️ Vista previa
+
+### Dashboard analítico
+
+<p align="center">
+  <img src="docs/screenshots/dashboard.png" alt="Dashboard de Inventar.io" width="900">
+</p>
+
+### Flujos principales
+
+| Inventario | Ventas |
+|:---:|:---:|
+| <img src="docs/screenshots/inventario.png" alt="Gestión de inventario" width="450"> | <img src="docs/screenshots/ventas.png" alt="Registro de ventas" width="450"> |
+| **Pedidos a proveedores** | **Detalles del producto** |
+| <img src="docs/screenshots/pedidos.png" alt="Gestión de pedidos" width="450"> | <img src="docs/screenshots/detalles_del_producto.png" alt="Detalles del producto" width="450"> |
+
+### Acceso
+
+<p align="center">
+  <img src="docs/screenshots/login.png" alt="Pantalla de inicio de sesión" width="500">
+</p>
+
+---
+
 ## 🚀 Características principales
 
 ### Funcionalidades del TFG
