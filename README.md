@@ -1,94 +1,149 @@
 # 🧾 Inventar.io
 
 [![Tests](https://github.com/javi2398/inventar.io/actions/workflows/tests.yml/badge.svg)](https://github.com/javi2398/inventar.io/actions/workflows/tests.yml)
+![PHP](https://img.shields.io/badge/PHP-8.4-777BB4?logo=php&logoColor=white)
+![Laravel](https://img.shields.io/badge/Laravel-12-FF2D20?logo=laravel&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql&logoColor=white)
+![License](https://img.shields.io/badge/license-MIT-green)
 
 **Inventar.io** es una aplicación web de **gestión de inventario** orientada a **autónomos, mayoristas y pequeños negocios**.  
 Permite registrar compras, ventas, stock y gastos de forma sencilla, centralizando toda la información comercial en una sola plataforma accesible desde cualquier dispositivo.
 
 ---
 
+## 📚 Sobre el proyecto
+
+**Inventar.io** es el resultado de mi **Proyecto Fin de Grado** del ciclo de **Desarrollo de Aplicaciones Web (DAW)**.
+
+> Tras la entrega y defensa del TFG, el proyecto ha seguido evolucionando: migración de la base de datos de **MySQL a PostgreSQL**, suite de **pruebas automatizadas con PHPUnit** e **integración continua con GitHub Actions**.
+
+---
+
 ## 🚀 Características principales
 
-- 📦 Gestión completa de inventario: productos, compras, ventas y gastos.  
-- 📊 Dashboard con estadísticas y control de stock en tiempo real.  
-- 👥 Sistema de autenticación y usuarios protegidos (Laravel Auth Middleware).  
-- 🖼️ Subida y gestión de imágenes con **Cloudinary**.  
-- 🔍 Búsqueda, filtrado y paginación de productos.  
-- 💻 Interfaz SPA moderna desarrollada con **React + Tailwind CSS**.  
-- ☁️ Despliegue en **Laravel Cloud** (entorno de producción).  
+### Funcionalidades del TFG
+
+- 📦 Gestión completa de **inventario**: productos, almacenes, categorías, compras, ventas y gastos.
+- 📊 **Dashboard analítico** con estadísticas y control de stock en tiempo real (Chart.js).
+- 👥 Sistema de **autenticación y usuarios** protegidos (Laravel Breeze + Auth Middleware).
+- 🏢 Gestión de **entidades**: clientes, proveedores, almacenes y categorías con CRUD completo.
+- 🛒 **Flujo de ventas**: registro de operaciones con descuento automático de stock.
+- 📥 **Flujo de compras**: pedidos a proveedores y entrada de mercancía al inventario.
+- 🖼️ Subida y gestión de imágenes con **Cloudinary**.
+- 🔍 Búsqueda, filtrado y paginación de productos.
+- 💻 Interfaz SPA moderna desarrollada con **React + Inertia + Tailwind CSS**.
+- ☁️ Despliegue en **Laravel Cloud** (entorno de producción).
+
+### Mejoras posteriores al TFG
+
+- 🐘 **Migración de MySQL a PostgreSQL**: actualización del stack de base de datos, traducción de SQL específico (`DATE_FORMAT`, `WEEK`, `SHOW TABLES`...) y configuración del entorno Docker.
+- 🧪 **Suite de tests con PHPUnit**: tests cubriendo modelos, relaciones, controladores y autenticación. Ejecución contra una base de datos PostgreSQL real para máxima fidelidad.
+- 🤖 **Integración Continua con GitHub Actions**: cada push y Pull Request a `main` dispara el workflow que levanta Postgres, instala dependencias, compila assets de Vite y ejecuta toda la suite.
+- 🔒 **Branch protection**: `main` solo aceptable vía Pull Request con tests verdes.
 
 ---
 
 ## 🧩 Stack tecnológico
 
 | Capa | Tecnología | Descripción |
-|------|-------------|-------------|
-| **Frontend** | React, Tailwind CSS, Vite | Interfaz dinámica y responsiva |
-| **Backend** | Laravel (PHP) | API REST y lógica del servidor |
-| **Base de datos** | PostgreSQL | Gestión relacional de datos |
+|------|------------|-------------|
+| **Frontend** | React 18, Inertia.js, Tailwind CSS, Vite | Interfaz SPA dinámica y responsiva |
+| **Backend** | Laravel 12 (PHP 8.4) | Lógica del servidor y rutas |
+| **Base de datos** | PostgreSQL 16 | Gestión relacional de datos |
 | **Almacenamiento** | Cloudinary | Gestión y optimización de imágenes |
-| **Control de versiones** | Git + GitHub | Flujo de desarrollo colaborativo |
-| **Despliegue** | Laravel Cloud | Hosting y CI/CD |
+| **Tests** | PHPUnit 11 | tests automatizados |
+| **CI/CD** | GitHub Actions | Pipeline de tests en cada push y PR |
+| **Contenedores** | Docker + Docker Compose | Entorno reproducible para desarrollo |
+| **Despliegue** | Laravel Cloud | Hosting de producción |
 
 ---
 
-## Instalación del proyecto
+## 🎮 Demo
 
-## Desarrollo Local
+> Cuando esté desplegado en Laravel Cloud, aquí irá la URL pública.
 
-Para ejecutar el proyecto localmente con Docker:  
+**Credenciales de prueba** (tras ejecutar los seeders):
 
-# Construir y ejecutar los contenedores  
-docker-compose up -d  
+- Usuario: `user@gmail.com`
+- Contraseña: `password`
 
-# Ver logs  
-docker-compose logs -f  
+---
 
-# Ejecutar comandos de Laravel  
-docker-compose exec app php artisan migrate  
-docker-compose exec app php artisan db:seed  
+## ⚙️ Instalación
 
-# Parar los contenedores  
-docker-compose down  
+### Opción A — Docker (recomendada)
 
+Construir y arrancar los contenedores:
 
-El proyecto estará disponible en:
-- Aplicación: http://localhost:8000
-- pgAdmin: http://localhost:8080 (usuario: `admin@inventar.io`, contraseña: `password`)
+```bash
+docker compose up -d
+```
 
-### Backend (Laravel)
+Ejecutar migraciones y seeders dentro del contenedor:
 
-composer install  
-cp .env.example .env  
-php artisan key:generate  
+```bash
+docker compose exec app php artisan migrate --seed
+```
 
-### Edita el archivo .env con tus credenciales de PostgreSQL
+Ver logs en tiempo real:
 
-DB_CONNECTION=pgsql  
-DB_HOST=127.0.0.1  
-DB_PORT=5432  
-DB_DATABASE=inventario  
-DB_USERNAME=postgres  
-DB_PASSWORD=password  
+```bash
+docker compose logs -f
+```
 
-> Si usas Docker (recomendado), estas credenciales coinciden con las del `docker-compose.yml`.  
-> Si usas PostgreSQL nativo, ajusta usuario y contraseña a tu instalación.
+Parar los contenedores:
 
-### Requisito de la extensión PHP
+```bash
+docker compose down
+```
 
-Asegúrate de tener la extensión `pdo_pgsql` habilitada en tu PHP. Comprueba con:
+El proyecto queda disponible en:
 
-php -m | grep pgsql
+- **Aplicación**: http://localhost:8000
+- **pgAdmin**: http://localhost:8080 (usuario: `admin@inventar.io`, contraseña: `password`)
 
-### Ejecuta migraciones y seeders
+### Opción B — Instalación nativa
 
-php artisan migrate --seed  
-php artisan serve  
+Requisitos previos:
 
-### Frontend (React)
+- PHP **8.4** con extensión `pdo_pgsql` habilitada
+- Composer 2
+- Node.js 20+
+- PostgreSQL 16
 
-npm install  
-npm run dev  
+Pasos:
+
+```bash
+# Backend
+composer install
+cp .env.example .env
+php artisan key:generate
+```
+
+Edita el `.env` con tus credenciales de PostgreSQL:
+
+```env
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=inventario
+DB_USERNAME=postgres
+DB_PASSWORD=password
+```
+
+Migra y siembra:
+
+```bash
+php artisan migrate --seed
+php artisan serve
+```
+
+Frontend:
+
+```bash
+npm install
+npm run dev
+```
 
 ---
 
@@ -96,7 +151,7 @@ npm run dev
 
 La suite de tests usa la base de datos `inventario_testing` del mismo contenedor de Postgres definido en `docker-compose.yml` (se crea automáticamente la primera vez que se inicializa el volumen, vía `docker/postgres-init/init.sql`).
 
-### Ejecutar los tests en local
+### Ejecutar la suite en local
 
 ```bash
 # 1. Levantar Postgres si no está arriba
@@ -109,6 +164,65 @@ docker compose up -d postgres
 ./vendor/bin/phpunit --filter ProductoController
 ```
 
-### CI
+### Cobertura
 
-Cada `push` a `main` y cada Pull Request dispara el workflow [`tests.yml`](.github/workflows/tests.yml), que levanta un servicio de Postgres 16 y ejecuta toda la suite. El estado se refleja en el badge superior.
+| Categoría | Tests | Descripción |
+|-----------|-------|-------------|
+| Smoke + Auth | 34 | Health check, login, registro, recuperación de contraseña, perfil |
+| Modelos | 23 | Relaciones Eloquent (belongsTo, hasMany, belongsToMany), accesores |
+| Controladores web | 42 | CRUD de productos, almacenes, categorías, clientes, proveedores, ventas y compras |
+| **Total** | **99** | **209 assertions, ~11s** |
+
+### Integración Continua
+
+Cada `push` a `main` y cada Pull Request dispara el workflow [`tests.yml`](.github/workflows/tests.yml), que:
+
+1. Levanta un servicio Postgres 16 con la base de datos `inventario_testing`.
+2. Instala PHP 8.4 con las extensiones necesarias (`pdo_pgsql`, `mbstring`, `bcmath`, `gd`, `zip`).
+3. Cachea dependencias de Composer y npm para ejecuciones rápidas.
+4. Compila los assets de Vite.
+5. Ejecuta toda la suite de PHPUnit.
+
+El resultado se refleja en el badge del inicio del README.
+
+---
+
+## 📁 Estructura del proyecto
+
+```
+inventar.io/
+├── app/
+│   ├── Http/Controllers/Web/   # Controladores principales (Productos, Ventas, Compras...)
+│   └── Models/                 # 11 modelos Eloquent
+├── database/
+│   ├── factories/              # 12 factories para tests
+│   ├── migrations/             # Schema de la base de datos
+│   └── seeders/                # Datos demo
+├── resources/js/
+│   ├── Components/             # Componentes React reutilizables
+│   └── Pages/                  # Páginas Inertia
+├── routes/
+│   └── web.php                 # Definición de rutas
+├── tests/
+│   ├── Feature/Auth/           # Tests de autenticación
+│   ├── Feature/Models/         # Tests de modelos
+│   └── Feature/Web/            # Tests de controladores web
+├── docker/
+│   ├── apache/                 # Config de Apache
+│   └── postgres-init/          # Script de inicialización de Postgres (BD de tests)
+└── .github/workflows/          # Workflows de GitHub Actions
+```
+
+---
+
+## 📜 Licencia
+
+[MIT](LICENSE) — uso libre con atribución.
+
+---
+
+## 👤 Autor
+
+Desarrollado por **Javier Vigara Valentín** ([@javi2398](https://github.com/javi2398))
+
+Proyecto Fin de Grado — Ciclo Formativo de Grado Superior en Desarrollo de Aplicaciones Web (DAW).
